@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# PyCharm
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Generated files
+*.log
+
+# Data generated during processing
+data/processed/
+
+# Machine learning models
+*.pkl
+*.joblib
