@@ -19,9 +19,6 @@ env/
 # Data generated during processing
 data/processed/
 
-# Raw datasets
-data/raw/*.json
-data/raw/*.csv
 
 # Machine learning models
 *.pkl
