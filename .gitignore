@@ -19,7 +19,6 @@ env/
 # Data generated during processing
 data/processed/
 
-
 # Machine learning models
 *.pkl
 *.joblib
