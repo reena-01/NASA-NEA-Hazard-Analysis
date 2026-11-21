@@ -24,6 +24,16 @@ with potentially hazardous asteroids.
 - Scikit-learn
 - Jupyter Notebook
 
+## Data Source
+
+This project uses NASA's Near-Earth Object Web Service (NeoWs)
+for Near-Earth Object data.
+
+Source:
+https://api.nasa.gov/
+
+The raw data is downloaded programmatically using Python.
+
 ## Project Status
 
 🚧 Project under development
