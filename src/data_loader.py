@@ -1,95 +1,196 @@
-import json
+# DATA LOADER JSON
+
 from pathlib import Path
 
 import pandas as pd
 
 
-# Project paths
+# ============================================================
+# PATHS
+# ============================================================
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-RAW_DATA_FILE = PROJECT_ROOT / "data" / "raw" / "neo_data.json"
+RAW_DATA_FILE = (
+    PROJECT_ROOT
+    / "data"
+    / "raw"
+    / "neo_data.json"
+)
 
-PROCESSED_DATA_FILE = PROJECT_ROOT / "data" / "processed" / "neo_data.csv"
+PROCESSED_DATA_DIR = (
+    PROJECT_ROOT
+    / "data"
+    / "processed"
+)
 
+PROCESSED_DATA_FILE = (
+    PROCESSED_DATA_DIR
+    / "neo_data.csv"
+)
+
+
+# ============================================================
+# LOAD RAW DATA
+# ============================================================
 
 def load_raw_data():
-    """Load the raw NASA NEO JSON data."""
+    """Load raw NASA NEO JSON data."""
 
     if not RAW_DATA_FILE.exists():
         raise FileNotFoundError(
-            f"NASA data file not found: {RAW_DATA_FILE}"
+            f"\nRaw NASA data was not found.\n\n"
+            f"Expected file:\n{RAW_DATA_FILE}\n\n"
+            f"Run download_data.py first."
         )
 
-    with open(RAW_DATA_FILE, "r", encoding="utf-8") as file:
-        data = json.load(file)
-
-    return data
+    return pd.read_json(RAW_DATA_FILE)
 
 
-def create_dataframe(data):
-    """Convert NASA NEO JSON data into a Pandas DataFrame."""
+# ============================================================
+# PROCESS NEO DATA
+# ============================================================
 
-    asteroid_records = []
+def process_data():
+    """Convert NASA NEO JSON into a flat CSV dataset."""
 
-    for date, asteroids in data["near_earth_objects"].items():
+    import json
 
-        for asteroid in asteroids:
+    if not RAW_DATA_FILE.exists():
+        raise FileNotFoundError(
+            f"\nRaw data not found:\n{RAW_DATA_FILE}"
+        )
 
-            record = {
-                "id": asteroid.get("id"),
-                "name": asteroid.get("name"),
-                "absolute_magnitude": asteroid.get(
-                    "absolute_magnitude_h"
-                ),
-                "is_potentially_hazardous": asteroid.get(
-                    "is_potentially_hazardous_asteroid"
-                ),
-                "date": date,
-            }
+    with open(
+        RAW_DATA_FILE,
+        "r",
+        encoding="utf-8"
+    ) as file:
 
-            asteroid_records.append(record)
+        raw_data = json.load(file)
 
-    return pd.DataFrame(asteroid_records)
+    objects = []
+
+    near_earth_objects = raw_data.get(
+        "near_earth_objects",
+        {}
+    )
+
+    for date, daily_objects in near_earth_objects.items():
+
+        for neo in daily_objects:
+
+            close_approach_data = neo.get(
+                "close_approach_data",
+                []
+            )
+
+            approach = (
+                close_approach_data[0]
+                if close_approach_data
+                else {}
+            )
+
+            relative_velocity = approach.get(
+                "relative_velocity",
+                {}
+            )
+
+            miss_distance = approach.get(
+                "miss_distance",
+                {}
+            )
+
+            estimated_diameter = neo.get(
+                "estimated_diameter",
+                {}
+            )
+
+            kilometers = estimated_diameter.get(
+                "kilometers",
+                {}
+            )
+
+            objects.append(
+                {
+                    "id": neo.get("id"),
+                    "name": neo.get("name"),
+                    "absolute_magnitude_h": neo.get(
+                        "absolute_magnitude_h"
+                    ),
+                    "estimated_diameter_min_km": kilometers.get(
+                        "estimated_diameter_min"
+                    ),
+                    "estimated_diameter_max_km": kilometers.get(
+                        "estimated_diameter_max"
+                    ),
+                    "is_potentially_hazardous": neo.get(
+                        "is_potentially_hazardous_asteroid"
+                    ),
+                    "close_approach_date": approach.get(
+                        "close_approach_date"
+                    ),
+                    "relative_velocity_km_s": relative_velocity.get(
+                        "kilometers_per_second"
+                    ),
+                    "miss_distance_km": miss_distance.get(
+                        "kilometers"
+                    ),
+                }
+            )
+
+    df = pd.DataFrame(objects)
+
+    return df
 
 
-def main():
-    print("Loading NASA Near-Earth Object data...")
+# ============================================================
+# SAVE PROCESSED DATA
+# ============================================================
 
-    # Load JSON data
-    data = load_raw_data()
+def save_processed_data(df):
+    """Save processed NEO data as CSV."""
 
-    # Convert JSON to DataFrame
-    df = create_dataframe(data)
-
-    # Create processed-data folder if it doesn't exist
-    PROCESSED_DATA_FILE.parent.mkdir(
+    PROCESSED_DATA_DIR.mkdir(
         parents=True,
         exist_ok=True
     )
 
-    # Save processed data
-    df.to_csv(PROCESSED_DATA_FILE, index=False)
+    df.to_csv(
+        PROCESSED_DATA_FILE,
+        index=False
+    )
 
-    print("\nDataset loaded successfully!")
-    print("Processed dataset saved to:")
-    print(PROCESSED_DATA_FILE)
+    print(
+        f"\nProcessed data saved to:\n"
+        f"{PROCESSED_DATA_FILE}"
+    )
 
-    print("--------------------------------")
 
-    print(f"Number of records: {len(df)}")
-    print(f"Number of columns: {len(df.columns)}")
+# ============================================================
+# MAIN
+# ============================================================
 
-    print("\nColumns:")
-    print(df.columns.tolist())
+def main():
 
-    print("\nFirst 5 records:")
-    print(df.head())
+    print("=" * 60)
+    print("NASA NEO DATA PROCESSING")
+    print("=" * 60)
 
-    print("\nData types:")
-    print(df.dtypes)
+    df = process_data()
 
-    print("\nMissing values:")
-    print(df.isnull().sum())
+    print(
+        f"\nProcessed objects: {len(df)}"
+    )
+
+    print(
+        f"Columns: {len(df.columns)}"
+    )
+
+    save_processed_data(df)
+
+    print("\nData processing completed successfully.")
+    print("=" * 60)
 
 
 if __name__ == "__main__":
