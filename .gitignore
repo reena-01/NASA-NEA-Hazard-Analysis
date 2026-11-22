@@ -1,3 +1,6 @@
+# PyCharm
+.idea/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -6,10 +9,7 @@ __pycache__/
 venv/
 .venv/
 
-# IDE
-.idea/
-
-# Machine learning models
+# Trained ML models
 models/*.joblib
 
 # Generated results
