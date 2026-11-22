@@ -1,0 +1,37 @@
+NASA NEAR-EARTH ASTEROID HAZARD ANALYSIS
+FINAL MODEL EVALUATION REPORT
+======================================================================
+
+DATASET
+======================================================================
+Total samples: 36
+Features: 5
+Train/Test split: 80/20
+Cross-validation: 5-fold stratified
+
+MODEL PERFORMANCE
+======================================================================
+              Model  Test Accuracy  Test Precision  Test Recall  Test F1  CV Accuracy  CV Precision  CV Recall  CV F1
+Logistic Regression          0.875             1.0          0.5   0.6667       0.7786        0.1667        0.3 0.2133
+      Random Forest          0.875             1.0          0.5   0.6667       0.8607        0.6000        0.7 0.6000
+
+Selected model based on highest cross-validation F1: Random Forest
+
+CONFUSION MATRICES
+======================================================================
+
+Logistic Regression:
+[[6 0]
+ [1 1]]
+
+Random Forest:
+[[6 0]
+ [1 1]]
+
+SCIENTIFIC LIMITATIONS
+======================================================================
+The dataset contains only a small sample of NASA Near-Earth Objects.
+The dataset is also imbalanced between hazardous and non-hazardous classes.
+Model results should therefore be interpreted as exploratory rather than production-ready.
+The target represents the potentially hazardous classification used in the dataset.
+The model identifies statistical relationships with this classification and does not establish physical causation or provide an official asteroid hazard assessment.
