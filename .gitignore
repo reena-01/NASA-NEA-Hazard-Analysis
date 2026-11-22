@@ -43,19 +43,14 @@ workspace.xml
 # NASA NEO Data
 # ============================================================
 
-# Raw downloaded NASA data
-data/raw/
-
-# Processed/generated data
-data/processed/
+# Data is intentionally tracked for portfolio/reproducibility
 
 
 # ============================================================
 # Generated Results
 # ============================================================
 
-results/figures/
-results/reports/
+# Results are intentionally tracked for portfolio/reproducibility
 
 
 # ============================================================
