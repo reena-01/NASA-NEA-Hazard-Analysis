@@ -1,5 +1,6 @@
 # DATA LOADER JSON
 
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -44,7 +45,12 @@ def load_raw_data():
             f"Run download_data.py first."
         )
 
-    return pd.read_json(RAW_DATA_FILE)
+    with open(
+        RAW_DATA_FILE,
+        "r",
+        encoding="utf-8"
+    ) as file:
+        return json.load(file)
 
 
 # ============================================================
@@ -54,20 +60,7 @@ def load_raw_data():
 def process_data():
     """Convert NASA NEO JSON into a flat CSV dataset."""
 
-    import json
-
-    if not RAW_DATA_FILE.exists():
-        raise FileNotFoundError(
-            f"\nRaw data not found:\n{RAW_DATA_FILE}"
-        )
-
-    with open(
-        RAW_DATA_FILE,
-        "r",
-        encoding="utf-8"
-    ) as file:
-
-        raw_data = json.load(file)
+    raw_data = load_raw_data()
 
     objects = []
 
@@ -114,28 +107,46 @@ def process_data():
             objects.append(
                 {
                     "id": neo.get("id"),
+
                     "name": neo.get("name"),
+
                     "absolute_magnitude_h": neo.get(
                         "absolute_magnitude_h"
                     ),
+
                     "estimated_diameter_min_km": kilometers.get(
                         "estimated_diameter_min"
                     ),
+
                     "estimated_diameter_max_km": kilometers.get(
                         "estimated_diameter_max"
                     ),
+
                     "is_potentially_hazardous": neo.get(
                         "is_potentially_hazardous_asteroid"
                     ),
+
                     "close_approach_date": approach.get(
                         "close_approach_date"
                     ),
+
                     "relative_velocity_km_s": relative_velocity.get(
                         "kilometers_per_second"
                     ),
+
                     "miss_distance_km": miss_distance.get(
                         "kilometers"
                     ),
+
+                    "miss_distance_au": miss_distance.get(
+                        "astronomical"
+                    ),
+
+                    "orbiting_body": approach.get(
+                        "orbiting_body"
+                    ),
+
+                    "source_date": date,
                 }
             )
 
@@ -187,9 +198,16 @@ def main():
         f"Columns: {len(df.columns)}"
     )
 
+    print("\nColumns:")
+    for column in df.columns:
+        print(f" - {column}")
+
     save_processed_data(df)
 
-    print("\nData processing completed successfully.")
+    print(
+        "\nData processing completed successfully."
+    )
+
     print("=" * 60)
 
 
